@@ -20,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     machine.vm.network :forwarded_port, guest: 22, host: ssh_port, id: "ssh", auto_correct: true
 
     # Share some services maybe
-    #machine.vm.network :forwarded_port, guest: 80, host: 8080
+    machine.vm.network :forwarded_port, guest: 8080, host: 8080
 
     # Share an additional folder to the guest VM. The first argument is
     # the path on the host to the actual folder. The second argument is
