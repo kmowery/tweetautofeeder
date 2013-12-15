@@ -6,3 +6,5 @@ apt-get -y install golang
 
 go get github.com/gorilla/mux
 
+cp /vagrant/home/bashrc /home/vagrant/.bashrc
+
