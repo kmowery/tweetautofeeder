@@ -34,5 +34,5 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-export GOPATH="/vagrant"
+export GOPATH="/vagrant/golang"
 export PATH=${PATH}:${GOPATH}/bin
