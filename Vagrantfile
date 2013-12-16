@@ -26,7 +26,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # the path on the host to the actual folder. The second argument is
     # the path on the guest to mount the folder. And the optional third
     # argument is a set of non-required options.
-    # machine.vm.synced_folder "../data", "/vagrant_data"
+    #machine.vm.synced_folder "../data", "/vagrant_data"
+    machine.vm.synced_folder ".", "/home/vagrant/gopath/src/github.com/kmowery/3amh/"
+    machine.vm.synced_folder "./www", "/usr/share/3amh/www", user: "vagrant", group: "vagrant"
 
     # Turn off /vagrant, if you want
     #machine.vm.synced_folder ".", "/vagrant", disabled: true
