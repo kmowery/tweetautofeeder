@@ -13,13 +13,32 @@ import (
 
 
 func indexHandler(s Services, w http.ResponseWriter, r *http.Request) {
-  url,_ := s.router.Get("login_begin").URLPath()
+  args := map[string]string{
+      "homepage": "yes",
+    }
+
+  user,_ := getUser(s, w, r)
+  if(user != nil) {
+    args["username"] = user.screenName
+  }
 
   data := mustache.RenderFileInLayout(
     "/usr/share/tweetautofeeder/templates/main_page.must",
     "/usr/share/tweetautofeeder/templates/layout.must",
-    map[string]string{"url":url.String()})
+    args)
   w.Write([]byte(data))
+  return
+}
+
+func renderError(w http.ResponseWriter, errorMessage string) {
+  data := mustache.RenderFileInLayout(
+    "/usr/share/tweetautofeeder/templates/error_page.must",
+    "/usr/share/tweetautofeeder/templates/layout.must",
+    map[string]string{
+      "errorMessage": errorMessage,
+    })
+  w.Write([]byte(data))
+  w.WriteHeader(http.StatusBadRequest)
   return
 }
 
@@ -79,9 +98,13 @@ func main() {
     r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)        ).Name("login")
     r.HandleFunc("/login/begin",          makeServicesHandler(services, beginLoginHandler)   ).Name("login_begin")
     r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)).Name("oauth_callback")
-    r.HandleFunc("/list",                 makeServicesHandler(services, listHandler)         ).Name("list")
-    r.HandleFunc("/debug", debugHandler ).Name("debug")
-    r.HandleFunc("/blog", blogHandler ).Name("blog")
+
+    r.HandleFunc("/pending",              makeServicesHandler(services, pendingHandler)      ).Name("pending")
+    // TODO:
+    //r.HandleFunc("/posted",             makeServicesHandler(services, postedHandler)       ).Name("posted")
+    //r.HandleFunc("/schedule",           makeServicesHandler(services, scheduleHandler)     ).Name("schedule")
+    //r.HandleFunc("/logout",             makeServicesHandler(services, logoutHandler)       ).Name("logout")
+
     // TODO: robots.txt, humans.txt
 
     r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/tweetautofeeder/www"))))

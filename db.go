@@ -70,7 +70,7 @@ func updateAccessToken(s Services, requestToken *oauth.RequestToken, atoken *oau
 
 }
 
-func getUser(s Services, sessionCookie string) (*User, error) {
+func getUserWithCookie(s Services, sessionCookie string) (*User, error) {
   var user *User = &User{}
 
   err := s.storage.QueryRow("select user_id, screen_name, oauth_token, oauth_token_secret from users where session_cookie = ?", sessionCookie).Scan(

@@ -1,34 +1,48 @@
 package main
 
 import (
-  "log"
+  "fmt"
+  //"log"
   "net/http"
   "github.com/hoisie/mustache"
 )
 
-func listHandler(s Services, w http.ResponseWriter, r *http.Request) {
-  session, err := s.sessions.Get(r, "login")
+type Tweet struct {
+  tweet string
+}
+func (tw Tweet) Get() string {
+  return tw.tweet
+}
+
+
+
+func pendingHandler(s Services, w http.ResponseWriter, r *http.Request) {
+  user,err := getUser(s,w,r)
+
   if(err != nil) {
-    log.Fatal(err)
+    // TODO don't leak errors
+    renderError(w, fmt.Sprintf("%s", err))
+    return
   }
 
-  sessioncookie,present := session.Values["sessioncookie"]
-  if(!present) {
-    // TODO redirect somewhere nice with an error message
-    log.Println("cookie not existent, come back again")
-  }
-
-  user,err := getUser(s, sessioncookie.(string))
-  if(err != nil) {
-    log.Fatal(err)
-  }
   if(user == nil) {
-    // TODO redirect somewhere nice
-    log.Println("user didn't exist")
+    renderError(w, "You aren't logged in!")
+    return
   }
 
+  args := map[string]interface{}{
+      "pending": "yes",
+      "username": user.screenName,
+      "tweets": []Tweet{ Tweet{"one"}, Tweet{"two"}},
+    }
 
-  data := mustache.RenderFile("/usr/share/tweetautofeeder/templates/blog_main.must", map[string]string{"url":"not a url"})
+  // TODO get actual pending tweets
+
+
+  data := mustache.RenderFileInLayout(
+    "/usr/share/tweetautofeeder/templates/pending_page.must",
+    "/usr/share/tweetautofeeder/templates/layout.must",
+    args)
   w.Write([]byte(data))
 
   return
