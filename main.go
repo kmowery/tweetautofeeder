@@ -74,15 +74,18 @@ func main() {
 
     r := mux.NewRouter()
     services.router = r
-    r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
+    r.HandleFunc("/",                     makeIndexHandler(*r) ).Name("root")
     r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)  ).Name("login")
     r.HandleFunc("/login/begin_login",    makeServicesHandler(services, beginLoginHandler)  ).Name("begin_login")
     r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)  ).Name("oauth_callback")
-    r.HandleFunc("/list",                 makeServicesHandler(services, listCallbackHandler)  ).Name("list")
+    r.HandleFunc("/list",                 makeServicesHandler(services, listHandler)  ).Name("list")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
+    // TODO: robots.txt, humans.txt
 
-    r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/tweetautofeeder/www"))))
+    r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/tweetautofeeder/www"))))
+    r.PathPrefix("/css"    ).Handler(http.StripPrefix("/css/",    http.FileServer(http.Dir("/usr/share/tweetautofeeder/css"))))
+    r.PathPrefix("/js"     ).Handler(http.StripPrefix("/js/",     http.FileServer(http.Dir("/usr/share/tweetautofeeder/js"))))
 
     err = http.ListenAndServe(":8080", r)
     if err != nil {

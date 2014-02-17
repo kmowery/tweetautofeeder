@@ -29,6 +29,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #machine.vm.synced_folder "../data", "/vagrant_data"
     machine.vm.synced_folder ".", "/home/vagrant/gopath/src/github.com/kmowery/tweetautofeeder/"
     machine.vm.synced_folder "./www", "/usr/share/tweetautofeeder/www", user: "vagrant", group: "vagrant"
+    machine.vm.synced_folder "./css", "/usr/share/tweetautofeeder/css", user: "vagrant", group: "vagrant"
+    machine.vm.synced_folder "./js", "/usr/share/tweetautofeeder/js", user: "vagrant", group: "vagrant"
     machine.vm.synced_folder "./templates", "/usr/share/tweetautofeeder/templates", user: "vagrant", group: "vagrant"
 
     # Turn off /vagrant, if you want

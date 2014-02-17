@@ -31,7 +31,7 @@ func loginHandler(s Services, w http.ResponseWriter, r *http.Request) {
 
   url,_ := s.router.Get("begin_login").URLPath()
 
-  data := mustache.RenderFile("/usr/share/tweetautofeeder/templates/blog_main.must", map[string]string{"url":url.String()})
+  data := mustache.RenderFile("/usr/share/tweetautofeeder/templates/main_page.must", map[string]string{"url":url.String()})
   w.Write([]byte(data))
   return
 }
