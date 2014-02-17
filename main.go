@@ -4,6 +4,7 @@ import (
   "log"
   "net/http"
   "github.com/gorilla/mux"
+  "github.com/mrjones/oauth"
 )
 
 func makeIndexHandler(router mux.Router) http.HandlerFunc {
@@ -22,9 +23,21 @@ func main() {
     var err error
     err = nil
 
+    c := oauth.NewConsumer(
+      API_CONSUMER_KEY,
+      API_CONSUMER_SECRET,
+      oauth.ServiceProvider{
+        RequestTokenUrl:   "https://api.twitter.com/oauth/request_token",
+        AuthorizeTokenUrl: "https://api.twitter.com/oauth/authorize",
+        AccessTokenUrl:    "https://api.twitter.com/oauth/access_token",
+      })
+
+    c.Debug(true)
+
+
     r := mux.NewRouter()
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
-    r.HandleFunc("/login", loginHandler ).Name("login")
+    r.Handle(    "/login", NewLoginHandler(c)  ).Name("login")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 
