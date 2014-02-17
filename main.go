@@ -26,7 +26,7 @@ func makeIndexHandler(router mux.Router) http.HandlerFunc {
 
 type Services struct {
   customer *oauth.Consumer
-  sessions *sessions.FilesystemStore
+  sessions *sessions.CookieStore
   storage *sql.DB
   router *mux.Router
 }
@@ -37,6 +37,14 @@ func makeServicesHandler( s Services, sh ServicesHandler ) http.HandlerFunc {
     sh(s, w, r)
   }
 }
+
+type User struct {
+  sessionCookie string
+  userId string
+  screenName string
+  atoken oauth.AccessToken
+}
+
 
 func main() {
     var err error
@@ -55,7 +63,7 @@ func main() {
     services.customer.Debug(true)
 
     // TODO parameterize
-    services.sessions = sessions.NewFilesystemStore("/home/vagrant/cookie.db", []byte(FILE_AUTH_KEY), []byte(FILE_ENC_KEY))
+    services.sessions = sessions.NewCookieStore([]byte(COOKIE_KEY))
 
     // TODO paramterize
     services.storage, err = sql.Open("sqlite3", "/home/vagrant/storage.sqlite")
@@ -70,6 +78,7 @@ func main() {
     r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)  ).Name("login")
     r.HandleFunc("/login/begin_login",    makeServicesHandler(services, beginLoginHandler)  ).Name("begin_login")
     r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)  ).Name("oauth_callback")
+    r.HandleFunc("/list",                 makeServicesHandler(services, listCallbackHandler)  ).Name("list")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 

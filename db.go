@@ -47,12 +47,12 @@ func getRequestToken(s Services, requestTokenStr string) (*oauth.RequestToken, e
   return rt, nil
 }
 
-func updateAccessToken(s Services, requestToken *oauth.RequestToken, atoken *oauth.AccessToken) error {
+func updateAccessToken(s Services, requestToken *oauth.RequestToken, atoken *oauth.AccessToken, sessionCookie string) error {
   tx, err := s.storage.Begin()
   if err != nil {
     return err
   }
-  stmt,err := tx.Prepare("update users set oauth_token = ?, oauth_token_secret = ?, user_id = ?, screen_name = ? where request_token = ?")
+  stmt,err := tx.Prepare("update users set oauth_token = ?, oauth_token_secret = ?, user_id = ?, screen_name = ?, session_cookie = ? where request_token = ?")
   if err != nil {
     return err
   }
@@ -60,7 +60,7 @@ func updateAccessToken(s Services, requestToken *oauth.RequestToken, atoken *oau
 
   // TODO: check if user_id and screen_name exist
 
-  _, err = stmt.Exec(atoken.Token, atoken.Secret, atoken.AdditionalData["user_id"], atoken.AdditionalData["screen_name"], requestToken.Token)
+  _, err = stmt.Exec(atoken.Token, atoken.Secret, atoken.AdditionalData["user_id"], atoken.AdditionalData["screen_name"], sessionCookie, requestToken.Token)
   if err != nil {
     return err
   }
@@ -69,3 +69,21 @@ func updateAccessToken(s Services, requestToken *oauth.RequestToken, atoken *oau
   return nil
 
 }
+
+func getUser(s Services, sessionCookie string) (*User, error) {
+  var user *User = &User{}
+
+  err := s.storage.QueryRow("select user_id, screen_name, oauth_token, oauth_token_secret from users where session_cookie = ?", sessionCookie).Scan(
+    &user.userId, &user.screenName, &user.atoken.Token, &user.atoken.Secret)
+
+  switch {
+  case err == sql.ErrNoRows:
+    return nil, nil
+  case err != nil:
+    return nil, err
+  default:
+  }
+  return user, nil
+
+}
+

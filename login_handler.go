@@ -1,11 +1,31 @@
 package main
 
 import (
+  "encoding/base64"
+  "crypto/rand"
   //"fmt"
   "log"
   "net/http"
+  "regexp"
   "github.com/hoisie/mustache"
 )
+
+func generateRandomString() string {
+  var r *regexp.Regexp;
+  var err error;
+
+  r,err = regexp.Compile( `[^\w]` )
+
+  b := make([]byte, 32)
+  _, err = rand.Read(b)
+  if(err != nil ) {
+    // not sure what to do here...
+    log.Fatal("couldn't read random bytes...")
+  }
+  return r.ReplaceAllString(base64.StdEncoding.EncodeToString(b), "")
+}
+
+
 
 func loginHandler(s Services, w http.ResponseWriter, r *http.Request) {
 
@@ -56,12 +76,22 @@ func oauthCallbackHandler(s Services, w http.ResponseWriter, r *http.Request) {
     log.Fatal(err)
   }
 
-  updateAccessToken(s, rt, atoken)
+  sessioncookie := generateRandomString()
 
+  updateAccessToken(s, rt, atoken, sessioncookie)
 
-  data := mustache.RenderFile("/usr/share/tweetautofeeder/templates/blog_main.must", map[string]string{"url":"not a url"})
-  w.Write([]byte(data))
+  session, _ := s.sessions.Get(r, "login")
+  session.Values["sessioncookie"] = sessioncookie
+  err = session.Save(r, w)
+  if(err != nil) {
+    log.Fatal(err)
+  }
 
+  redirect_url,err := s.router.Get("list").URLPath()
+  if err != nil {
+    log.Fatal(err)
+  }
+  http.Redirect(w, r, redirect_url.String(), 307)
   return
 }
 

@@ -5,5 +5,6 @@ create table USERS (
   oauth_token TEXT,
   oauth_token_secret TEXT,
   user_id TEXT,
-  screen_name TEXT
+  screen_name TEXT,
+  session_cookie TEXT
 );
