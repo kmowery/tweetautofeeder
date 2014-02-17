@@ -84,6 +84,53 @@ func getUserWithCookie(s Services, sessionCookie string) (*User, error) {
   default:
   }
   return user, nil
+}
 
+func addTweet(s Services, user User, tweet string) error {
+  tx, err := s.storage.Begin()
+  if err != nil {
+    return err
+  }
+  stmt,err := tx.Prepare("insert into tweets(id,user_id,tweet) values(NULL,?,?)")
+  if err != nil {
+    return err
+  }
+  defer stmt.Close()
+
+  _, err = stmt.Exec(user.userId, tweet)
+  if err != nil {
+    return err
+  }
+  tx.Commit()
+
+  return nil
+
+}
+
+func getTweets(s Services, user User) ([]Tweet, error) {
+  rows, err := s.storage.Query("select id,tweet from tweets where user_id = ?", user.userId)
+
+  switch {
+  case err == sql.ErrNoRows:
+    return nil, nil
+  case err != nil:
+    return nil, err
+  default:
+  }
+
+  var tweets []Tweet
+
+  for rows.Next() {
+    var tweet string
+    var id string
+    err = rows.Scan(&id,&tweet)
+    if(err == nil) {
+      tweets = append(tweets, Tweet{id, tweet})
+    } else {
+      log.Println(err)
+
+    }
+  }
+  return tweets, nil
 }
 

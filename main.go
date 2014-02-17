@@ -99,7 +99,8 @@ func main() {
     r.HandleFunc("/login/begin",          makeServicesHandler(services, beginLoginHandler)   ).Name("login_begin")
     r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)).Name("oauth_callback")
 
-    r.HandleFunc("/pending",              makeServicesHandler(services, pendingHandler)      ).Name("pending")
+    r.HandleFunc("/pending",              makeServicesHandler(services, pendingHandler)      ).Name("pending").Methods("GET")
+    r.HandleFunc("/pending",              makeServicesHandler(services, postNewHandler)      ).Name("pending_post").Methods("POST")
     // TODO:
     //r.HandleFunc("/posted",             makeServicesHandler(services, postedHandler)       ).Name("posted")
     //r.HandleFunc("/schedule",           makeServicesHandler(services, scheduleHandler)     ).Name("schedule")

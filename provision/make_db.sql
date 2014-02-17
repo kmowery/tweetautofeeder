@@ -8,3 +8,10 @@ create table USERS (
   screen_name TEXT,
   session_cookie TEXT
 );
+
+create table TWEETS (
+  id integer PRIMARY KEY ASC,
+  user_id TEXT,
+  tweet TEXT,
+  FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
