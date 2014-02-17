@@ -8,7 +8,7 @@ import (
 
 func makeIndexHandler(router mux.Router) http.HandlerFunc {
   return func (w http.ResponseWriter, r *http.Request) {
-    s,err := router.Get("blog").URLPath()
+    s,err := router.Get("login").URLPath()
     if err != nil {
       log.Fatal(err)
     }
@@ -24,6 +24,8 @@ func main() {
 
     r := mux.NewRouter()
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
+    r.HandleFunc("/login", loginHandler ).Name("login")
+    r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 
     r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/tweetautofeeder/www"))))
