@@ -6,7 +6,7 @@
       <form class="form-horizontal" action="/pending" method="post">
 
         <div class="form-group">
-          <label class="col-sm-2" for="tweet">Tweet</label>
+          <label class="col-sm-2" for="tweet">Add</label>
           <textarea rows="3" class="form-control col-sm-10" id="tweet" placeholder="Type here" name="tweet"></textarea>
         </div>
         <div class="form-group">
@@ -29,6 +29,9 @@
 
           <p class="col-sm-16"><a class="col-sm-2" href="/pending/post/{{ID}}">Tweet Now</a><a href="/pending/delete/{{ID}}">Delete</a></p>
         </div>
+        {{/tweets}}
+        {{^tweets}}
+          <h2>No pending tweets!</h2>
         {{/tweets}}
       </div>
 

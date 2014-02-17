@@ -1,0 +1,23 @@
+      <div class="container">
+        <h1>Posted Tweets</h1>
+      </div>
+
+    <div class="container">
+      <div class="row">
+        {{#tweets}}
+        <div class="col-lg-16">
+          <h2>{{Get}}</h2>
+        </div>
+        {{/tweets}}
+        {{^tweets}}
+          <h2>Nothing tweeted yet!</h2>
+        {{/tweets}}
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Company 2013</p>
+      </footer>
+    </div>
+    

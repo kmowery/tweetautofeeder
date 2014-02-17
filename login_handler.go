@@ -79,9 +79,13 @@ func oauthCallbackHandler(s Services, w http.ResponseWriter, r *http.Request) {
     log.Fatal(err)
   }
 
+  log.Println("after authorize token")
+
   sessioncookie := generateRandomString()
 
   updateAccessToken(s, rt, atoken, sessioncookie)
+
+  log.Println("updated access token")
 
   session, _ := s.sessions.Get(r, "login")
   session.Values["sessioncookie"] = sessioncookie
@@ -90,7 +94,9 @@ func oauthCallbackHandler(s Services, w http.ResponseWriter, r *http.Request) {
     log.Fatal(err)
   }
 
-  redirect_url,err := s.router.Get("list").URLPath()
+  log.Println("redirecting...")
+
+  redirect_url,err := s.router.Get("pending").URLPath()
   if err != nil {
     log.Fatal(err)
   }

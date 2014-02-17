@@ -91,7 +91,7 @@ func addTweet(s Services, user User, tweet string) error {
   if err != nil {
     return err
   }
-  stmt,err := tx.Prepare("insert into tweets(id,user_id,tweet) values(NULL,?,?)")
+  stmt,err := tx.Prepare("insert into tweets(id,user_id,tweet,completed) values(NULL,?,?,0)")
   if err != nil {
     return err
   }
@@ -104,11 +104,48 @@ func addTweet(s Services, user User, tweet string) error {
   tx.Commit()
 
   return nil
+}
+
+func completeTweet(s Services, user *User, tweetid string) error {
+  tx, err := s.storage.Begin()
+  if err != nil {
+    return err
+  }
+  stmt,err := tx.Prepare("update tweets set completed = 1 where user_id = ? and id = ?")
+  if err != nil {
+    return err
+  }
+  defer stmt.Close()
+
+  _, err = stmt.Exec(user.userId, tweetid)
+  if err != nil {
+    return err
+  }
+  tx.Commit()
+
+  return nil
 
 }
 
-func getTweets(s Services, user User) ([]Tweet, error) {
-  rows, err := s.storage.Query("select id,tweet from tweets where user_id = ?", user.userId)
+func getTweet(s Services, user *User, tweetid string) (*Tweet, error) {
+  var id string
+  var tweet string
+
+  err := s.storage.QueryRow("select id,tweet from tweets where user_id = ? and id = ?", user.userId, tweetid).Scan(&id, &tweet)
+
+  switch {
+  case err == sql.ErrNoRows:
+    return nil, nil
+  case err != nil:
+    return nil, err
+  default:
+    return &Tweet{id,tweet}, nil
+  }
+}
+
+func getTweets(s Services, user User, completed bool) ([]Tweet, error) {
+  rows, err := s.storage.Query("select id,tweet from tweets where user_id = ? and completed = ?",
+     user.userId, completed)
 
   switch {
   case err == sql.ErrNoRows:

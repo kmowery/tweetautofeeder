@@ -13,5 +13,6 @@ create table TWEETS (
   id integer PRIMARY KEY ASC,
   user_id TEXT,
   tweet TEXT,
+  completed BOOL,
   FOREIGN KEY(user_id) REFERENCES users(user_id)
 );
