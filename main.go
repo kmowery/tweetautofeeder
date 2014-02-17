@@ -28,6 +28,7 @@ type Services struct {
   customer *oauth.Consumer
   sessions *sessions.FilesystemStore
   storage *sql.DB
+  router *mux.Router
 }
 type ServicesHandler func(s Services, w http.ResponseWriter, r *http.Request)
 
@@ -64,8 +65,11 @@ func main() {
     defer services.storage.Close()
 
     r := mux.NewRouter()
+    services.router = r
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
-    r.HandleFunc("/login", makeServicesHandler(services, loginHandler)  ).Name("login")
+    r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)  ).Name("login")
+    r.HandleFunc("/login/begin_login",    makeServicesHandler(services, beginLoginHandler)  ).Name("begin_login")
+    r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)  ).Name("oauth_callback")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 
