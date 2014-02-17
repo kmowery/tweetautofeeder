@@ -26,7 +26,7 @@ func main() {
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 
-    r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/3amh/www"))))
+    r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/usr/share/tweetautofeeder/www"))))
 
     err = http.ListenAndServe(":8080", r)
     if err != nil {

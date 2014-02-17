@@ -2,7 +2,7 @@ box  = 'precise64'
 url  = 'http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
 sha256 = '79499b35f603be929fd1374eb235c22192aaad72b11f1d101ae73a3293d79fe4'
 ip   = '192.168.0.75'
-name = '3amhighway'
+name = 'tweetautofeeder'
 ssh_port = 2202
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
@@ -27,9 +27,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # the path on the guest to mount the folder. And the optional third
     # argument is a set of non-required options.
     #machine.vm.synced_folder "../data", "/vagrant_data"
-    machine.vm.synced_folder ".", "/home/vagrant/gopath/src/github.com/kmowery/3amh/"
-    machine.vm.synced_folder "./www", "/usr/share/3amh/www", user: "vagrant", group: "vagrant"
-    machine.vm.synced_folder "./templates", "/usr/share/3amh/templates", user: "vagrant", group: "vagrant"
+    machine.vm.synced_folder ".", "/home/vagrant/gopath/src/github.com/kmowery/tweetautofeeder/"
+    machine.vm.synced_folder "./www", "/usr/share/tweetautofeeder/www", user: "vagrant", group: "vagrant"
+    machine.vm.synced_folder "./templates", "/usr/share/tweetautofeeder/templates", user: "vagrant", group: "vagrant"
 
     # Turn off /vagrant, if you want
     #machine.vm.synced_folder ".", "/vagrant", disabled: true
