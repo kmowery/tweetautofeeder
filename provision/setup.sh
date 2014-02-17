@@ -17,6 +17,7 @@ mkdir -p ${GOPATH}
 chown -R vagrant:vagrant ${GOPATH}
 
 go get github.com/gorilla/mux
+go get github.com/gorilla/sessions
 go get github.com/hoisie/mustache
 go get github.com/ChimeraCoder/anaconda
 go get github.com/mrjones/oauth

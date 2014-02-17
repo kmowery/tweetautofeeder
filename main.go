@@ -24,7 +24,7 @@ func makeIndexHandler(router mux.Router) http.HandlerFunc {
 
 type Services struct {
   customer *oauth.Consumer
-  sessions *sessions.CookieStore
+  sessions *sessions.FilesystemStore
 }
 type ServicesHandler func(s Services, w http.ResponseWriter, r *http.Request)
 
@@ -50,7 +50,8 @@ func main() {
       })
     services.customer.Debug(true)
 
-    services.sessions = sessions.NewCookieStore([]byte(COOKIE_KEY))
+    // TODO parameterize
+    services.sessions = sessions.NewFilesystemStore("/home/vagrant/cookie.db", []byte(FILE_AUTH_KEY), []byte(FILE_ENC_KEY))
 
     r := mux.NewRouter()
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
