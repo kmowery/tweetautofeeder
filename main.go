@@ -4,6 +4,7 @@ import (
   "log"
   "net/http"
   "github.com/gorilla/mux"
+  "github.com/gorilla/sessions"
   "github.com/mrjones/oauth"
 )
 
@@ -19,11 +20,27 @@ func makeIndexHandler(router mux.Router) http.HandlerFunc {
   }
 }
 
+
+
+type Services struct {
+  customer *oauth.Consumer
+  sessions *sessions.CookieStore
+}
+type ServicesHandler func(s Services, w http.ResponseWriter, r *http.Request)
+
+func makeServicesHandler( s Services, sh ServicesHandler ) http.HandlerFunc {
+  return func (w http.ResponseWriter, r *http.Request) {
+    sh(s, w, r)
+  }
+}
+
 func main() {
     var err error
     err = nil
 
-    c := oauth.NewConsumer(
+    services := Services{}
+
+    services.customer = oauth.NewConsumer(
       API_CONSUMER_KEY,
       API_CONSUMER_SECRET,
       oauth.ServiceProvider{
@@ -31,13 +48,13 @@ func main() {
         AuthorizeTokenUrl: "https://api.twitter.com/oauth/authorize",
         AccessTokenUrl:    "https://api.twitter.com/oauth/access_token",
       })
+    services.customer.Debug(true)
 
-    c.Debug(true)
-
+    services.sessions = sessions.NewCookieStore([]byte(COOKIE_KEY))
 
     r := mux.NewRouter()
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
-    r.Handle(    "/login", NewLoginHandler(c)  ).Name("login")
+    r.Handle(    "/login", makeServicesHandler(services, loginHandler)  ).Name("login")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 
