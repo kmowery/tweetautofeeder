@@ -101,6 +101,7 @@ func main() {
 
     r.HandleFunc("/pending",              makeServicesHandler(services, pendingHandler)      ).Name("pending").Methods("GET")
     r.HandleFunc("/pending",              makeServicesHandler(services, postNewHandler)      ).Name("pending_post").Methods("POST")
+    r.HandleFunc("/pending/delete/{tweetid}",makeServicesHandler(services, deleteHandler)    ).Name("delete")
     // TODO:
     //r.HandleFunc("/posted",             makeServicesHandler(services, postedHandler)       ).Name("posted")
     //r.HandleFunc("/schedule",           makeServicesHandler(services, scheduleHandler)     ).Name("schedule")

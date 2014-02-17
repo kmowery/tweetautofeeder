@@ -5,6 +5,7 @@ import (
   //"log"
   "net/http"
   "github.com/hoisie/mustache"
+  "github.com/gorilla/mux"
 )
 
 type Tweet struct {
@@ -42,7 +43,39 @@ func postNewHandler(s Services, w http.ResponseWriter, r *http.Request) {
 
   redirect_url,err := s.router.Get("pending").URLPath()
   http.Redirect(w, r, redirect_url.String(), 302)
+  return
 }
+
+
+func deleteHandler(s Services, w http.ResponseWriter, r *http.Request) {
+  user,err := getUser(s,w,r)
+  if(err != nil) {
+    // TODO don't leak errors
+    renderError(w, fmt.Sprintf("%s", err))
+    return
+  }
+  if(user == nil) {
+    renderError(w, "You aren't logged in!")
+    return
+  }
+
+  vars := mux.Vars(r)
+  tweetid,exists := vars["tweetid"]
+
+  if(exists) {
+    err = deleteTweet(s, *user, tweetid)
+    if(err != nil) {
+      // TODO don't leak errors
+      renderError(w, fmt.Sprintf("%s", err))
+      return
+    }
+  }
+
+  redirect_url,err := s.router.Get("pending").URLPath()
+  http.Redirect(w, r, redirect_url.String(), 302)
+  return
+}
+
 
 
 func pendingHandler(s Services, w http.ResponseWriter, r *http.Request) {

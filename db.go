@@ -134,3 +134,24 @@ func getTweets(s Services, user User) ([]Tweet, error) {
   return tweets, nil
 }
 
+func deleteTweet(s Services, user User, tweetid string) error {
+  tx, err := s.storage.Begin()
+  if err != nil {
+    return err
+  }
+  stmt,err := tx.Prepare("delete from tweets where user_id = ? and id = ?")
+  if err != nil {
+    return err
+  }
+  defer stmt.Close()
+
+  _, err = stmt.Exec(user.userId, tweetid)
+  if err != nil {
+    return err
+  }
+  tx.Commit()
+
+  return nil
+
+}
+
