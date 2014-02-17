@@ -5,6 +5,7 @@ import (
   "net/url"
   "encoding/base64"
   "regexp"
+  //"bytes"
   "crypto/rand"
   "crypto/hmac"
   "crypto/sha1"
@@ -69,17 +70,7 @@ func generateOAuthHeader(base_url *url.URL, method string, data map[string][]str
     oauth_parameters["oauth_token"] = []string{*oauth_token}
   }
 
-  //TEST
-  //oauth_parameters["oauth_nonce"] = []string{"b44e9cf74cd8162d20f335bc6ec23e27"}
-  //oauth_parameters["oauth_consumer_key"] = []string{"xvz1evFS4wEEPTGEFPHBog"}
-  //oauth_parameters["oauth_nonce"] = []string{"kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg"}
-  ////oauth_parameters["oauth_signature_method"] = []string{"HMAC-SHA1"}
-  //oauth_parameters["oauth_timestamp"] = []string{"1318622958"}
-  //oauth_parameters["oauth_token"] = []string{"37773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb"}
-  //oauth_parameters["oauth_version"] = []string{"1.0"}
-
   keys := sortKeys(oauth_parameters)
-
   plus_regex, _ := regexp.Compile(`\+`)
 
   ////TODO: percent encode keys
@@ -145,6 +136,13 @@ func makeRequestFor(base_url *url.URL, method string, data map[string][]string, 
   var request *http.Request
   if(method == "GET") {
     request, _ = http.NewRequest(method, base_url.String() + "?" + url.Values(data).Encode(), nil)
+  // TODO: this is right, but we're debugging oauth right now and it's special
+  //} else if(method == "POST") {
+  //  request, _ = http.NewRequest(method, base_url.String(), bytes.NewBufferString( url.Values(data).Encode()))
+    //request.Body = ioutil.NopCloser(strings.NewReader( url.Values(data).Encode()))
+    //request.Body = ioutil.NopCloser(strings.NewReader("SOME DATA"))
+    //request.PostForm = url.Values(data)
+    //request.Form = url.Values(data)
   } else {
     request, _ = http.NewRequest(method, base_url.String(), nil)
   }
@@ -166,24 +164,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
   //   &s, &sec)
 
   client := &http.Client{};
-  url,_ := url.Parse("https://api.twitter.com/1.1/statuses/user_timeline.json")
-  s := "2347842991-AYKG3DaRevPedfu2VaqmS6KtGg3x5KLbjONMD5m"
-  sec := "iK4LSRToy2eCB7mpEjfI9exkzdXewlpKMn7ng2LdwhRXm"
-  request := makeRequestFor(url, "GET", map[string][]string{"screen_name": {"app_debug"}}, &s, &sec )
+  //url,_ := url.Parse("https://api.twitter.com/1.1/statuses/user_timeline.json")
+  //s := "2347842991-AYKG3DaRevPedfu2VaqmS6KtGg3x5KLbjONMD5m"
+  //sec := "iK4LSRToy2eCB7mpEjfI9exkzdXewlpKMn7ng2LdwhRXm"
+  //request := makeRequestFor(url, "GET", map[string][]string{"screen_name": {"app_debug"}}, &s, &sec )
 
 
-  fmt.Printf("request url: %s\n\n", request.URL.String())
+  //fmt.Printf("request url: %s\n\n", request.URL.String())
 
-  //url,_ := url.Parse("https://api.twitter.com/oauth/request_token")
+  url,_ := url.Parse("https://api.twitter.com/oauth/request_token")
+  //url,_ := url.Parse("http://localhost:8080/debug")
 
   //s := "2347842991-AYKG3DaRevPedfu2VaqmS6KtGg3x5KLbjONMD5m"
   // Step 1: make POST to twitter
-  //makeRequestFor(url, "POST", map[string][]string{"oauth_callback": {"http://placeholder.com/callback"}}, &s )
+  request := makeRequestFor(url, "POST", map[string][]string{"oauth_callback": {"http://placeholder.com/callback"}}, nil, nil )
   //request := makeRequestFor("https://api.twitter.com/oauth/request_token", "POST")
   resp,err := client.Do(request)
 
   if(err != nil) {
-    fmt.Printf("error fetching page: %d", err)
+    fmt.Printf("error fetching page: %s\n", err)
   }
 
   fmt.Printf("Status code: %d\n", resp.StatusCode)
