@@ -9,6 +9,7 @@ import (
   "crypto/hmac"
   "crypto/sha1"
   "fmt"
+  "io/ioutil"
   "time"
   "sort"
   "strings"
@@ -187,7 +188,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
   fmt.Printf("Status code: %d\n", resp.StatusCode)
   fmt.Printf("Headers:     %s\n", resp.Header)
-  fmt.Printf("Body:        %s\n", resp.Body)
+
+  body,_ := ioutil.ReadAll(resp.Body)
+
+  fmt.Printf("Body:        %s\n", body)
 
   data := mustache.RenderFile("/usr/share/tweetautofeeder/templates/blog_main.must", map[string]string{"thing":"places"})
   w.Write([]byte(data))
