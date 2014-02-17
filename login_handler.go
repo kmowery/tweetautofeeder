@@ -29,7 +29,7 @@ func generateRandomString() string {
 
 func loginHandler(s Services, w http.ResponseWriter, r *http.Request) {
 
-  url,_ := s.router.Get("begin_login").URLPath()
+  url,_ := s.router.Get("login_begin").URLPath()
 
   data := mustache.RenderFileInLayout(
     "/usr/share/tweetautofeeder/templates/main_page.must",

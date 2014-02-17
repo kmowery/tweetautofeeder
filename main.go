@@ -8,18 +8,19 @@ import (
   "github.com/mrjones/oauth"
   "database/sql"
   _ "github.com/mattn/go-sqlite3"
+  "github.com/hoisie/mustache"
 )
 
-func makeIndexHandler(router mux.Router) http.HandlerFunc {
-  return func (w http.ResponseWriter, r *http.Request) {
-    s,err := router.Get("login").URLPath()
-    if err != nil {
-      log.Fatal(err)
-    }
 
-    http.Redirect(w, r, s.String(), 307)
-    return
-  }
+func indexHandler(s Services, w http.ResponseWriter, r *http.Request) {
+  url,_ := s.router.Get("login_begin").URLPath()
+
+  data := mustache.RenderFileInLayout(
+    "/usr/share/tweetautofeeder/templates/main_page.must",
+    "/usr/share/tweetautofeeder/templates/layout.must",
+    map[string]string{"url":url.String()})
+  w.Write([]byte(data))
+  return
 }
 
 
@@ -74,11 +75,11 @@ func main() {
 
     r := mux.NewRouter()
     services.router = r
-    r.HandleFunc("/",                     makeIndexHandler(*r) ).Name("root")
-    r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)  ).Name("login")
-    r.HandleFunc("/login/begin_login",    makeServicesHandler(services, beginLoginHandler)  ).Name("begin_login")
-    r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)  ).Name("oauth_callback")
-    r.HandleFunc("/list",                 makeServicesHandler(services, listHandler)  ).Name("list")
+    r.HandleFunc("/",                     makeServicesHandler(services, indexHandler)        ).Name("root")
+    r.HandleFunc("/login",                makeServicesHandler(services, loginHandler)        ).Name("login")
+    r.HandleFunc("/login/begin",          makeServicesHandler(services, beginLoginHandler)   ).Name("login_begin")
+    r.HandleFunc("/login/oauth_callback", makeServicesHandler(services, oauthCallbackHandler)).Name("oauth_callback")
+    r.HandleFunc("/list",                 makeServicesHandler(services, listHandler)         ).Name("list")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
     // TODO: robots.txt, humans.txt
