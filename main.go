@@ -6,6 +6,8 @@ import (
   "github.com/gorilla/mux"
   "github.com/gorilla/sessions"
   "github.com/mrjones/oauth"
+  "database/sql"
+  _ "github.com/mattn/go-sqlite3"
 )
 
 func makeIndexHandler(router mux.Router) http.HandlerFunc {
@@ -25,6 +27,7 @@ func makeIndexHandler(router mux.Router) http.HandlerFunc {
 type Services struct {
   customer *oauth.Consumer
   sessions *sessions.FilesystemStore
+  storage *sql.DB
 }
 type ServicesHandler func(s Services, w http.ResponseWriter, r *http.Request)
 
@@ -53,9 +56,16 @@ func main() {
     // TODO parameterize
     services.sessions = sessions.NewFilesystemStore("/home/vagrant/cookie.db", []byte(FILE_AUTH_KEY), []byte(FILE_ENC_KEY))
 
+    // TODO paramterize
+    services.storage, err = sql.Open("sqlite3", "/home/vagrant/storage.sqlite")
+    if(err != nil) {
+      log.Fatal(err)
+    }
+    defer services.storage.Close()
+
     r := mux.NewRouter()
     r.HandleFunc("/", makeIndexHandler(*r) ).Name("root")
-    r.Handle(    "/login", makeServicesHandler(services, loginHandler)  ).Name("login")
+    r.HandleFunc("/login", makeServicesHandler(services, loginHandler)  ).Name("login")
     r.HandleFunc("/debug", debugHandler ).Name("debug")
     r.HandleFunc("/blog", blogHandler ).Name("blog")
 

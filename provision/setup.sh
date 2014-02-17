@@ -11,6 +11,11 @@ apt-get update
 echo "golang-go golang-go/dashboard boolean false" | debconf-set-selections
 apt-get -y install golang
 
+apt-get -y install sqlite3
+
+sqlite3 /home/vagrant/storage.sqlite < /vagrant/provision/make_db.sql
+chown vagrant:vagrant /home/vagrant/storage.sqlite
+
 cp /vagrant/provision/home/bashrc /home/vagrant/.bashrc
 export GOPATH="/home/vagrant/gopath"
 mkdir -p ${GOPATH}
@@ -21,5 +26,6 @@ go get github.com/gorilla/sessions
 go get github.com/hoisie/mustache
 go get github.com/ChimeraCoder/anaconda
 go get github.com/mrjones/oauth
+go get github.com/mattn/go-sqlite3
 
 
